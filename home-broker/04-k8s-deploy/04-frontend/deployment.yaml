@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web
+  name: web-deployment
+  namespace: homebroker
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: web
@@ -14,23 +14,28 @@ spec:
     spec:
       containers:
       - name: web
-        image: fabricioveronez/trader-web:v2
+        image: lucaslive974/trader-web:v2
         ports:
         - containerPort: 3000
         env:
         - name: TRADER_API_URL
-          value: "api:80"
+          value: "api-service:80"
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: web
+  name: web-service
+  namespace: homebroker
 spec:
   selector:
     app: web
   ports:
   - port: 80
     targetPort: 3000
-    # nodePort: 30001
-  type: LoadBalancer
-  #type: NodePort
+    nodePort: 30001
+  #type: LoadBalancer
+  type: NodePort
